@@ -310,7 +310,7 @@ Stata code:
 ```
 
 R code:
-```{r, eval+FALSE}
+```{r, eval=FALSE}
 ors.glm <- svyglm(ors ~ survey, family = quasibinomial, design = svyset_merge, na.action = na.omit)
 kable(data.frame(OR = exp(coef(ors.glm)), ci = exp(confint(ors.glm)))) #create a table of results to include odds ratio + CI
 ```
@@ -338,7 +338,7 @@ svy: logit ors survey, or
 ```
 
 R code:
-```{r, eval+FALSE}
+```{r, eval=FALSE}
 merged <- merged %>%
   mutate(toilet = case_when(v116 >= 11 & v116 <= 15 ~ "flush",
                             v116 >= 21 & v116 <= 23 ~ "latrine",
