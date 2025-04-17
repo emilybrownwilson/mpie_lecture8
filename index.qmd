@@ -285,6 +285,21 @@ svy: prop ors, over(survey) coeflegend
 
 R code:
 ```{r, eval=FALSE}
+# Need to establish need stratum for each survey because currently they are overlapped (i.e. same stratum value across both surveys)
+
+merged <- merged %>%
+  unite("stratum", c(survey_label, v023), sep = "_", remove = FALSE) # creates a new column to create a new unique ID
+
+  svyset_merge <- svydesign(
+    id = ~ v001, # Variable which represents the cluster
+    data = merged, # The name of your data that you are using
+    weight = ~ nwgt, # Here we use normalized weighting
+    strata = ~ stratum, # Variable which represents the stratum
+    nest = TRUE, # relabel cluster ids to enforce nesting within strata
+    survey.lonely.psu = "adjust") # Single unit centered on STATA
+  
+  options(survey.lonely.psu="adjust")
+
 kable(svyby(~I(ors == 0), ~survey_label, design = svyset_merge, svyciprop, vartype="ci", method = "logit"))
 kable(svyby(~I(ors == 1), ~survey_label, design = svyset_merge, svyciprop, vartype="ci", method = "logit"))
 
