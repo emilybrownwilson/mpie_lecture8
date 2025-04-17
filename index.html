@@ -148,6 +148,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#assessing-change-in-intervention-coverage---option-1" id="toc-assessing-change-in-intervention-coverage---option-1" class="nav-link active" data-scroll-target="#assessing-change-in-intervention-coverage---option-1">Assessing Change in Intervention Coverage - Option 1</a>
   <ul class="collapse">
+  <li><a href="#change-directory-to-where-your-data-are-stored" id="toc-change-directory-to-where-your-data-are-stored" class="nav-link" data-scroll-target="#change-directory-to-where-your-data-are-stored">Change directory to where your data are stored</a></li>
   <li><a href="#use-the-child-recodes-from-nigerias-2008-and-2013-dhs-in-stata-or-r" id="toc-use-the-child-recodes-from-nigerias-2008-and-2013-dhs-in-stata-or-r" class="nav-link" data-scroll-target="#use-the-child-recodes-from-nigerias-2008-and-2013-dhs-in-stata-or-r">Use the child recodes from Nigeria’s 2008 and 2013 DHS in Stata or R</a></li>
   <li><a href="#step-1-create-coverage-indicators-in-both-datasets" id="toc-step-1-create-coverage-indicators-in-both-datasets" class="nav-link" data-scroll-target="#step-1-create-coverage-indicators-in-both-datasets">Step 1: Create coverage indicators (in both datasets)</a></li>
   <li><a href="#step-2a-prepare-2008-and-2013-datasets-to-be-combined" id="toc-step-2a-prepare-2008-and-2013-datasets-to-be-combined" class="nav-link" data-scroll-target="#step-2a-prepare-2008-and-2013-datasets-to-be-combined">Step 2a: Prepare 2008 and 2013 datasets to be combined</a></li>
@@ -186,6 +187,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="assessing-change-in-intervention-coverage---option-1" class="level2">
 <h2 class="anchored" data-anchor-id="assessing-change-in-intervention-coverage---option-1">Assessing Change in Intervention Coverage - Option 1</h2>
+<section id="change-directory-to-where-your-data-are-stored" class="level3">
+<h3 class="anchored" data-anchor-id="change-directory-to-where-your-data-are-stored">Change directory to where your data are stored</h3>
+</section>
 <section id="use-the-child-recodes-from-nigerias-2008-and-2013-dhs-in-stata-or-r" class="level3">
 <h3 class="anchored" data-anchor-id="use-the-child-recodes-from-nigerias-2008-and-2013-dhs-in-stata-or-r">Use the child recodes from Nigeria’s 2008 and 2013 DHS in Stata or R</h3>
 <p>R users may need to install/load these libraries</p>
@@ -213,30 +217,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="step-1-create-coverage-indicators-in-both-datasets">Step 1: Create coverage indicators (in both datasets)</h3>
 <p>Stata code:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>numlabel, add</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>des v005 h11 h13 h31 h31b h32z v024</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Svy set the data</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    gen wgt <span class="ot">=</span> v005<span class="sc">/</span><span class="dv">1000000</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    sum wgt </span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    gen nwgt<span class="ot">=</span>wgt<span class="sc">/</span><span class="fu">r</span>(mean)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    sum nwgt</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    svyset v001 [pw<span class="ot">=</span>nwgt], <span class="fu">strata</span>(v023) <span class="fu">singleunit</span>(centered)    </span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Create diarrhea variable</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    tab h11</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    gen diarrhea<span class="ot">=</span><span class="dv">0</span> <span class="cf">if</span> h11<span class="sc">==</span><span class="dv">0</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    replace diarrhea<span class="ot">=</span><span class="dv">1</span> <span class="cf">if</span> h11<span class="sc">==</span><span class="dv">2</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    replace diarrhea<span class="ot">=</span><span class="dv">0</span> <span class="cf">if</span> h11<span class="sc">==</span><span class="dv">8</span><span class="sc">|</span>h11<span class="sc">==</span><span class="dv">9</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    svy<span class="sc">:</span> ta diarrhea</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Create ORS treatment</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    tab h13</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    gen ors<span class="ot">=</span><span class="dv">0</span> <span class="cf">if</span> diarrhea<span class="sc">==</span><span class="dv">1</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    replace ors<span class="ot">=</span><span class="dv">1</span> <span class="cf">if</span> h13<span class="sc">==</span><span class="dv">2</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    svy<span class="sc">:</span> tab ors</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>use DHS_Nigeria2008_kids.dta, clear</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>numlabel, add</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>des v005 h11 h13 h31 h31b h32z v024</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Svy set the data</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    gen wgt <span class="ot">=</span> v005<span class="sc">/</span><span class="dv">1000000</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    sum wgt </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    gen nwgt<span class="ot">=</span>wgt<span class="sc">/</span><span class="fu">r</span>(mean)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    sum nwgt</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    svyset v001 [pw<span class="ot">=</span>nwgt], <span class="fu">strata</span>(v023) <span class="fu">singleunit</span>(centered)    </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Create diarrhea variable</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    tab h11</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    gen diarrhea<span class="ot">=</span><span class="dv">0</span> <span class="cf">if</span> h11<span class="sc">==</span><span class="dv">0</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    replace diarrhea<span class="ot">=</span><span class="dv">1</span> <span class="cf">if</span> h11<span class="sc">==</span><span class="dv">2</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    replace diarrhea<span class="ot">=</span><span class="dv">0</span> <span class="cf">if</span> h11<span class="sc">==</span><span class="dv">8</span><span class="sc">|</span>h11<span class="sc">==</span><span class="dv">9</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    svy<span class="sc">:</span> ta diarrhea</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Create ORS treatment</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    tab h13</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    gen ors<span class="ot">=</span><span class="dv">0</span> <span class="cf">if</span> diarrhea<span class="sc">==</span><span class="dv">1</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    replace ors<span class="ot">=</span><span class="dv">1</span> <span class="cf">if</span> h13<span class="sc">==</span><span class="dv">2</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    svy<span class="sc">:</span> tab ors</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>R code:</p>
 <div class="cell">
@@ -296,7 +301,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    save nigeria2008anal, replace</span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="sc">**</span><span class="er">*</span><span class="dv">2013</span> Nigeria dataset</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    use DHS_Nigeria2013_kids.dta, clear <span class="sc">/</span><span class="er">/</span> CHANGE DIRECTORY TO WHERE FILE IS STORED </span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    use DHS_Nigeria2013_kids.dta, clear  </span>
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Svy set the data</span>
 <span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    gen wgt <span class="ot">=</span> v005<span class="sc">/</span><span class="dv">1000000</span></span>
@@ -317,26 +322,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> keep variables of interest</span>
 <span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors nwgt </span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    save nigeria2013, replace</span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Call household dataset to obtain household size</span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    use DHS_Nigeria2013_HH, clear</span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    keep  hvidx  hv012 hv001 hv002 </span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    rename hv001 v001</span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    rename hvidx v003</span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    rename hv002 v002</span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    sort v001 v002 v003</span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    save nigeria2013HH, replace</span>
-<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Merge both datasets</span>
-<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    use nigeria2013, clear</span>
-<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>    sort v001 v002 v003</span>
-<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    merge m<span class="sc">:</span><span class="dv">1</span> v001 v002 v003 using nigeria2013HH</span>
-<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    keep <span class="cf">if</span> _merge<span class="sc">==</span><span class="dv">3</span></span>
-<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    drop _merge</span>
-<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>    gen survey<span class="ot">=</span><span class="dv">1</span></span>
-<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>    save nigeria2013anal, replace   </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Call household dataset to obtain household size</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    use DHS_Nigeria2013_HH, clear</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    keep  hvidx  hv012 hv001 hv002 </span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    rename hv001 v001</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    rename hvidx v003</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    rename hv002 v002</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    sort v001 v002 v003</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    save nigeria2013HH, replace</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Merge both datasets</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    use nigeria2013, clear</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    sort v001 v002 v003</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>    merge m<span class="sc">:</span><span class="dv">1</span> v001 v002 v003 using nigeria2013HH</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    keep <span class="cf">if</span> _merge<span class="sc">==</span><span class="dv">3</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    drop _merge</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    gen survey<span class="ot">=</span><span class="dv">1</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>    save nigeria2013anal, replace   </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>R code:</p>
 <div class="cell">
