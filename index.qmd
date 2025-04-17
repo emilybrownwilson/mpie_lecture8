@@ -3,7 +3,7 @@ title: "MPIE Lecture 8: Analyzing change over time for coverage"
 ---
 
 ## Assessing Change in Intervention Coverage - Option 1
-
+### Change directory to where your data are stored
 ### Use the child recodes from Nigeria's 2008 and 2013 DHS in Stata or R
 R users may need to install/load these libraries
 ```{r, eval=FALSE}
@@ -30,6 +30,7 @@ library(multcomp)
 
 Stata code:
 ```{r, eval=FALSE}
+use DHS_Nigeria2008_kids.dta, clear
 numlabel, add
 
 des v005 h11 h13 h31 h31b h32z v024
@@ -116,7 +117,7 @@ Stata code:
 	save nigeria2008anal, replace
 	
 ***2013 Nigeria dataset
-	use DHS_Nigeria2013_kids.dta, clear // CHANGE DIRECTORY TO WHERE FILE IS STORED 
+	use DHS_Nigeria2013_kids.dta, clear  
 
 * Svy set the data
 	gen wgt = v005/1000000
@@ -137,7 +138,6 @@ Stata code:
 
 * keep variables of interest
 	keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors nwgt 
-	save nigeria2013, replace
 
 * Call household dataset to obtain household size
 	use DHS_Nigeria2013_HH, clear
