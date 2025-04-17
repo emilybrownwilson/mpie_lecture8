@@ -70,16 +70,12 @@ gc() # Clear memory
 
 # Kids DHS 2008
 kids_2008 <- read_dta("...DHS_Nigeria2008_kids.dta")
-#dict_kids08 <- generate_dictionary(kids_2008)
-gc()
 
 # Household DHS 2013
 hh_2013 <-  read_dta("...DHS_Nigeria2013_HH.dta")
-gc()
 
 # Kids DHS 2013
 kids_2013 <-  read_dta("...DHS_Nigeria2013_kids.dta")
-gc()
 
 
 kids_2008_des <- kids_2008[,c("v005","h11","h13","h31","h31b","h32z","v024")]str(kids_2008_des)
