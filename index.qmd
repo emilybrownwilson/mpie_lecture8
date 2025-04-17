@@ -297,8 +297,6 @@ merged <- merged %>%
     strata = ~ stratum, # Variable which represents the stratum
     nest = TRUE, # relabel cluster ids to enforce nesting within strata
     survey.lonely.psu = "adjust") # Single unit centered on STATA
-  
-  options(survey.lonely.psu="adjust")
 
 kable(svyby(~I(ors == 0), ~survey_label, design = svyset_merge, svyciprop, vartype="ci", method = "logit"))
 kable(svyby(~I(ors == 1), ~survey_label, design = svyset_merge, svyciprop, vartype="ci", method = "logit"))
@@ -360,7 +358,13 @@ merged <- merged %>%
          rural = case_when(v025 == 1 ~ 0,
                            v025 == 2 ~ 1))
 
-svy_merge()
+  svyset_merge <- svydesign(
+    id = ~ v001, # Variable which represents the cluster
+    data = merged, # The name of your data that you are using
+    weight = ~ nwgt, # Here we use normalized weighting
+    strata = ~ stratum, # Variable which represents the stratum
+    nest = TRUE, # relabel cluster ids to enforce nesting within strata
+    survey.lonely.psu = "adjust") # Single unit centered on STATA
 
 ors.adjust.glm <- svyglm(ors ~ survey_label + as.factor(v106) + as.factor(v190) + hv012 + toilet + rural, family = quasibinomial, design = svyset_merge, na.action = na.omit)
 kable(data.frame(OR = exp(coef(ors.adjust.glm)), ci = exp(confint(ors.adjust.glm)))) #create a table of results to include odds ratio + CI
