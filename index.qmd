@@ -94,7 +94,7 @@ Stata code:
 ```{r, eval=FALSE}
 ***2008 DHS
 * keep variables of interest
-	keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors ari nwgt aricare
+	keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors nwgt aricare
 	save nigeria2008, replace
 
 * Call household dataset to obtain household size
