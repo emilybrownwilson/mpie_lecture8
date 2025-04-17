@@ -94,7 +94,7 @@ Stata code:
 ```{r, eval=FALSE}
 ***2008 DHS
 * keep variables of interest
-	keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors nwgt aricare
+	keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors nwgt
 	save nigeria2008, replace
 
 * Call household dataset to obtain household size
@@ -135,25 +135,8 @@ Stata code:
 	gen ors=0 if diarrhea==1
 	replace ors=1 if h13==2
 
-* Create symptoms of ARI
-
-	gen ari=1 if h31==2 & h31b==1 & (h31c==1|h31c==3)
-	replace ari=0 if h31!=. & ari!=1
-
-* Create careseeking for symptoms of ARI from health facility
-	gen aricare=0 if ari==1
-	replace aricare=1 if ari==1 & h32z==1
-
-* Analysis of 2013 indicators
-	svy: prop ors
-	svy: prop ors, over(v024)
-
-	svy: prop aricare
-	svy: prop aricare, over(v024)
-
-
 * keep variables of interest
-	keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors ari nwgt aricare
+	keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors nwgt 
 	save nigeria2013, replace
 
 * Call household dataset to obtain household size
