@@ -179,8 +179,7 @@ Stata code:
 R code:
 ```{r, eval=FALSE}
 # Select only the variables of interest
-kids_2008 <- kids_2008 %>%
-  select(caseid, midx, v001, v002, v003, v005, v012, v022, v024, v025, v106, v190, v116, v023, diarrhea, ors, nwgt)
+kids_2008 <- kids_2008[,c("caseid", "midx", "v001", "v002", "v003", "v005", "v012", "v022", "v024", "v025", "v106", "v190", "v116", "v023", "diarrhea", "ors", "nwgt")]
 
 # Get the household size from this dataset
 hh_2008 <- hh_2008 %>%
@@ -234,8 +233,7 @@ svyset_2013 <- svydesign(
 kable(prop.table(svytable(~ors, design = svyset_2013))*100)
 
 # Select only the variables of interest
-kids_2013 <- kids_2013 %>%
-  select(caseid, midx, v001, v002, v003, v005, v012, v022, v024, v025, v106, v190, v116, v023, diarrhea, ors, nwgt)
+kids_2013 <- kids_2013[,c("caseid", "midx", "v001", "v002", "v003", "v005", "v012", "v022", "v024", "v025", "v106", "v190", "v116", "v023", "diarrhea", "ors", "nwgt")]
 
 # Get the household size from this dataset
 hh_2013 <- hh_2013 %>%
