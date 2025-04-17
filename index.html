@@ -154,6 +154,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#step-2b-append-datasets-stata-rbind-datasets-r" id="toc-step-2b-append-datasets-stata-rbind-datasets-r" class="nav-link" data-scroll-target="#step-2b-append-datasets-stata-rbind-datasets-r">Step 2b: Append datasets (Stata) / rbind datasets (R)</a></li>
   <li><a href="#step-3-set-svy-for-pooled-dataset" id="toc-step-3-set-svy-for-pooled-dataset" class="nav-link" data-scroll-target="#step-3-set-svy-for-pooled-dataset">Step 3: set svy for pooled dataset</a></li>
   </ul></li>
+  <li><a href="#assessing-change-in-intervention-coverage---option-2" id="toc-assessing-change-in-intervention-coverage---option-2" class="nav-link" data-scroll-target="#assessing-change-in-intervention-coverage---option-2">Assessing Change in Intervention Coverage - Option 2</a>
+  <ul class="collapse">
+  <li><a href="#step-4-run-the-logit-model-of-the-output-variable-on-time" id="toc-step-4-run-the-logit-model-of-the-output-variable-on-time" class="nav-link" data-scroll-target="#step-4-run-the-logit-model-of-the-output-variable-on-time">Step 4: Run the logit model of the output variable on time</a></li>
+  <li><a href="#step-5-control-for-other-variables" id="toc-step-5-control-for-other-variables" class="nav-link" data-scroll-target="#step-5-control-for-other-variables">Step 5: Control for other variables</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -467,6 +472,59 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>ors_diff <span class="ot">&lt;-</span> <span class="fu">svycontrast</span>(ors_merged, <span class="fu">quote</span>(<span class="st">`</span><span class="at">DHS 2013</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">DHS 2008</span><span class="st">`</span>)) <span class="co"># Standard error is needed to calculate the difference</span></span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>ors_diff<span class="sc">*</span><span class="dv">100</span></span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(ors_diff)<span class="sc">*</span><span class="dv">100</span> <span class="co"># SE and CI are slightly different to STATA output</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="assessing-change-in-intervention-coverage---option-2" class="level2">
+<h2 class="anchored" data-anchor-id="assessing-change-in-intervention-coverage---option-2">Assessing Change in Intervention Coverage - Option 2</h2>
+<section id="step-4-run-the-logit-model-of-the-output-variable-on-time" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-run-the-logit-model-of-the-output-variable-on-time">Step 4: Run the logit model of the output variable on time</h3>
+<p>Stata code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Assess changes between <span class="dv">2008</span> and <span class="dv">2013</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    svy<span class="sc">:</span> logit ors survey, or</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>R code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ors.glm <span class="ot">&lt;-</span> <span class="fu">svyglm</span>(ors <span class="sc">~</span> survey, <span class="at">family =</span> quasibinomial, <span class="at">design =</span> svyset_merge, <span class="at">na.action =</span> na.omit)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">data.frame</span>(<span class="at">OR =</span> <span class="fu">exp</span>(<span class="fu">coef</span>(ors.glm)), <span class="at">ci =</span> <span class="fu">exp</span>(<span class="fu">confint</span>(ors.glm)))) <span class="co">#create a table of results to include odds ratio + CI</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="step-5-control-for-other-variables" class="level3">
+<h3 class="anchored" data-anchor-id="step-5-control-for-other-variables">Step 5: Control for other variables</h3>
+<p>Stata code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> toilet</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    numlabel, add</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    tab v116</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    tab v116, nol</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    recode v116 <span class="dv">11</span><span class="sc">/</span><span class="dv">15</span><span class="ot">=</span><span class="dv">1</span> <span class="dv">21</span><span class="sc">/</span><span class="dv">23</span><span class="ot">=</span><span class="dv">2</span> <span class="dv">31</span><span class="ot">=</span><span class="dv">3</span> <span class="dv">41</span><span class="sc">/</span><span class="dv">99</span><span class="ot">=</span><span class="dv">4</span>, <span class="fu">gen</span>(toilet)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    lab def toilet <span class="dv">1</span> <span class="st">"flush"</span> <span class="dv">2</span><span class="st">"latrine"</span> <span class="dv">3</span><span class="st">"no facility"</span> <span class="dv">4</span><span class="st">"Other"</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    lab val toilet toilet</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Urban<span class="sc">/</span>rural   </span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    tab v025</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    gen rural<span class="ot">=</span>v025<span class="sc">==</span><span class="dv">2</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    tab rural</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>xi<span class="sc">:</span> svy<span class="sc">:</span> logit ors survey i.v106 i.v190 hv012 i.toilet rural, or</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>svy<span class="sc">:</span> logit ors survey, or</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>R code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> merged <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">toilet =</span> <span class="fu">case_when</span>(v116 <span class="sc">&gt;=</span> <span class="dv">11</span> <span class="sc">&amp;</span> v116 <span class="sc">&lt;=</span> <span class="dv">15</span> <span class="sc">~</span> <span class="st">"flush"</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                            v116 <span class="sc">&gt;=</span> <span class="dv">21</span> <span class="sc">&amp;</span> v116 <span class="sc">&lt;=</span> <span class="dv">23</span> <span class="sc">~</span> <span class="st">"latrine"</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                            v116 <span class="sc">==</span> <span class="dv">31</span> <span class="sc">~</span> <span class="st">"no facility"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                            v116 <span class="sc">==</span> <span class="dv">41</span> <span class="sc">|</span> v116 <span class="sc">==</span> <span class="dv">99</span> <span class="sc">~</span> <span class="st">"Other"</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">rural =</span> <span class="fu">case_when</span>(v025 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="dv">0</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                           v025 <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="dv">1</span>))</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="fu">svy_merge</span>()</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>ors.adjust.glm <span class="ot">&lt;-</span> <span class="fu">svyglm</span>(ors <span class="sc">~</span> survey_label <span class="sc">+</span> <span class="fu">as.factor</span>(v106) <span class="sc">+</span> <span class="fu">as.factor</span>(v190) <span class="sc">+</span> hv012 <span class="sc">+</span> toilet <span class="sc">+</span> rural, <span class="at">family =</span> quasibinomial, <span class="at">design =</span> svyset_merge, <span class="at">na.action =</span> na.omit)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">data.frame</span>(<span class="at">OR =</span> <span class="fu">exp</span>(<span class="fu">coef</span>(ors.adjust.glm)), <span class="at">ci =</span> <span class="fu">exp</span>(<span class="fu">confint</span>(ors.adjust.glm)))) <span class="co">#create a table of results to include odds ratio + CI</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
