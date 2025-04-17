@@ -274,7 +274,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="sc">**</span><span class="er">*</span><span class="dv">2008</span> DHS</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> keep variables of interest</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors nwgt aricare</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors nwgt</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    save nigeria2008, replace</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Call household dataset to obtain household size</span>
@@ -315,45 +315,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    gen ors<span class="ot">=</span><span class="dv">0</span> <span class="cf">if</span> diarrhea<span class="sc">==</span><span class="dv">1</span></span>
 <span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    replace ors<span class="ot">=</span><span class="dv">1</span> <span class="cf">if</span> h13<span class="sc">==</span><span class="dv">2</span></span>
 <span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Create symptoms of ARI</span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    gen ari<span class="ot">=</span><span class="dv">1</span> <span class="cf">if</span> h31<span class="sc">==</span><span class="dv">2</span> <span class="sc">&amp;</span> h31b<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> (h31c<span class="sc">==</span><span class="dv">1</span><span class="sc">|</span>h31c<span class="sc">==</span><span class="dv">3</span>)</span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    replace ari<span class="ot">=</span><span class="dv">0</span> <span class="cf">if</span> h31<span class="sc">!=</span>. <span class="sc">&amp;</span> ari<span class="sc">!=</span><span class="dv">1</span></span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Create careseeking <span class="cf">for</span> symptoms of ARI from health facility</span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    gen aricare<span class="ot">=</span><span class="dv">0</span> <span class="cf">if</span> ari<span class="sc">==</span><span class="dv">1</span></span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    replace aricare<span class="ot">=</span><span class="dv">1</span> <span class="cf">if</span> ari<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> h32z<span class="sc">==</span><span class="dv">1</span></span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Analysis of <span class="dv">2013</span> indicators</span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    svy<span class="sc">:</span> prop ors</span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    svy<span class="sc">:</span> prop ors, <span class="fu">over</span>(v024)</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> keep variables of interest</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors nwgt </span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    save nigeria2013, replace</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Call household dataset to obtain household size</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    use DHS_Nigeria2013_HH, clear</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    keep  hvidx  hv012 hv001 hv002 </span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    rename hv001 v001</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    rename hvidx v003</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    rename hv002 v002</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    sort v001 v002 v003</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    save nigeria2013HH, replace</span>
 <span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    svy<span class="sc">:</span> prop aricare</span>
-<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    svy<span class="sc">:</span> prop aricare, <span class="fu">over</span>(v024)</span>
-<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> keep variables of interest</span>
-<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors ari nwgt aricare</span>
-<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    save nigeria2013, replace</span>
-<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Call household dataset to obtain household size</span>
-<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>    use DHS_Nigeria2013_HH, clear</span>
-<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    keep  hvidx  hv012 hv001 hv002 </span>
-<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>    rename hv001 v001</span>
-<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>    rename hvidx v003</span>
-<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>    rename hv002 v002</span>
-<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>    sort v001 v002 v003</span>
-<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>    save nigeria2013HH, replace</span>
-<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Merge both datasets</span>
-<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>    use nigeria2013, clear</span>
-<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>    sort v001 v002 v003</span>
-<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>    merge m<span class="sc">:</span><span class="dv">1</span> v001 v002 v003 using nigeria2013HH</span>
-<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>    keep <span class="cf">if</span> _merge<span class="sc">==</span><span class="dv">3</span></span>
-<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>    drop _merge</span>
-<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>    gen survey<span class="ot">=</span><span class="dv">1</span></span>
-<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>    save nigeria2013anal, replace   </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Merge both datasets</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    use nigeria2013, clear</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>    sort v001 v002 v003</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    merge m<span class="sc">:</span><span class="dv">1</span> v001 v002 v003 using nigeria2013HH</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    keep <span class="cf">if</span> _merge<span class="sc">==</span><span class="dv">3</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    drop _merge</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>    gen survey<span class="ot">=</span><span class="dv">1</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>    save nigeria2013anal, replace   </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>R code:</p>
 <div class="cell">
