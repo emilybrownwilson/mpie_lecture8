@@ -299,3 +299,87 @@ ors_diff*100
 confint(ors_diff)*100 # SE and CI are slightly different to STATA output
 ```
 
+
+## Assessing Change in Intervention Coverage - Option 2
+### Step 4: Run the logit model of the output variable on time
+
+Stata code:
+```{r, eval=FALSE}
+* Assess changes between 2008 and 2013
+	svy: logit ors survey, or
+```
+
+R code:
+```{r, eval+FALSE}
+ors.glm <- svyglm(ors ~ survey, family = quasibinomial, design = svyset_merge, na.action = na.omit)
+kable(data.frame(OR = exp(coef(ors.glm)), ci = exp(confint(ors.glm)))) #create a table of results to include odds ratio + CI
+```
+
+### Step 5: Control for other variables
+Stata code:
+```{r, eval=FALSE}
+* toilet
+	numlabel, add
+	tab v116
+	tab v116, nol
+	recode v116 11/15=1 21/23=2 31=3 41/99=4, gen(toilet)
+	lab def toilet 1 "flush" 2"latrine" 3"no facility" 4"Other"
+	lab val toilet toilet
+
+* Urban/rural	
+	tab v025
+	gen rural=v025==2
+	tab rural
+
+xi: svy: logit ors survey i.v106 i.v190 hv012 i.toilet rural, or
+
+svy: logit ors survey, or
+```
+
+R code:
+```{r, eval+FALSE}
+merged <- merged %>%
+  mutate(toilet = case_when(v116 >= 11 & v116 <= 15 ~ "flush",
+                            v116 >= 21 & v116 <= 23 ~ "latrine",
+                            v116 == 31 ~ "no facility",
+                            v116 == 41 | v116 == 99 ~ "Other"),
+         rural = case_when(v025 == 1 ~ 0,
+                           v025 == 2 ~ 1))
+
+svy_merge()
+
+ors.adjust.glm <- svyglm(ors ~ survey_label + as.factor(v106) + as.factor(v190) + hv012 + toilet + rural, family = quasibinomial, design = svyset_merge, na.action = na.omit)
+kable(data.frame(OR = exp(coef(ors.adjust.glm)), ci = exp(confint(ors.adjust.glm)))) #create a table of results to include odds ratio + CI
+```
+
+
+
+
+
+
+R code:
+```{r, eval=FALSE}
+merged <- merged %>%
+  mutate(region = case_when(v024 == 1 ~ "north central",
+                            v024 == 2 ~ "north east",
+                            v024 == 3 ~ "north west",
+                            v024 == 4 ~ "south east",
+                            v024 == 5 ~ "south south",
+                            v024 == 6 ~ "south west"))
+
+ svyset_merge <- svydesign(
+    id = ~ v001, # Variable which represents the cluster
+    data = merged, # The name of your data that you are using
+    weight = ~ nwgt, # Here we use normalized weighting
+    strata = ~ stratum, # Variable which represents the stratum
+    nest = TRUE, # relabel cluster ids to enforce nesting within strata
+    survey.lonely.psu = "adjust") # Single unit centered on STATA
+  
+  options(survey.lonely.psu="adjust")
+  
+  assign('svyset_merge', svyset_merge, envir = .GlobalEnv)
+  
+  
+```
+
+
