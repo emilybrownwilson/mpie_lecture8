@@ -93,7 +93,7 @@ kids_2008$wgt <- kids_2008$v005/1000000 # Correct weighting
 kids_2008$nwgt <- kids_2008$wgt/mean(kids_2008$wgt) # Create normalized weighting
 
 # Svy set the data
-  svy_2008 <- svydesign(
+  svyset_2008 <- svydesign(
   id = ~ v001, # Variable which represents the cluster
   data = kids_2008, # The name of your data that you are using
   weight = ~ nwgt, # Here we use normalized weighting
@@ -206,7 +206,7 @@ kids_2013$wgt <- kids_2013$v005/1000000 # Correct weighting
 kids_2013$nwgt <- kids_2013$wgt/mean(kids_2013$wgt) # Create normalized weighting
 
 # Svy set the data
-  svy_2013 <- svydesign(
+  svyset_2013 <- svydesign(
   id = ~ v001, # Variable which represents the cluster
   data = kids_2013, # The name of your data that you are using
   weight = ~ nwgt, # Here we use normalized weighting
@@ -221,7 +221,7 @@ kable(prop.table(svytable(~ors, design = svyset_2013))*100)
 kids_2013$wgt <- kids_2013$v005/1000000 # Correct weighting
 kids_2013$nwgt <- kids_2013$wgt/mean(kids_2013$wgt) # Create normalized weighting
 
-svy_2013 <- svydesign(
+svyset_2013 <- svydesign(
     id = ~ v001, # Variable which represents the cluster
     data = kids_2013, # The name of your data that you are using
     weight = ~ nwgt, # Here we use normalized weighting
