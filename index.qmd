@@ -316,6 +316,7 @@ kable(data.frame(OR = exp(coef(ors.glm)), ci = exp(confint(ors.glm)))) #create a
 ```
 
 ### Step 5: Control for other variables
+
 Stata code:
 ```{r, eval=FALSE}
 * toilet
@@ -351,35 +352,4 @@ svy_merge()
 ors.adjust.glm <- svyglm(ors ~ survey_label + as.factor(v106) + as.factor(v190) + hv012 + toilet + rural, family = quasibinomial, design = svyset_merge, na.action = na.omit)
 kable(data.frame(OR = exp(coef(ors.adjust.glm)), ci = exp(confint(ors.adjust.glm)))) #create a table of results to include odds ratio + CI
 ```
-
-
-
-
-
-
-R code:
-```{r, eval=FALSE}
-merged <- merged %>%
-  mutate(region = case_when(v024 == 1 ~ "north central",
-                            v024 == 2 ~ "north east",
-                            v024 == 3 ~ "north west",
-                            v024 == 4 ~ "south east",
-                            v024 == 5 ~ "south south",
-                            v024 == 6 ~ "south west"))
-
- svyset_merge <- svydesign(
-    id = ~ v001, # Variable which represents the cluster
-    data = merged, # The name of your data that you are using
-    weight = ~ nwgt, # Here we use normalized weighting
-    strata = ~ stratum, # Variable which represents the stratum
-    nest = TRUE, # relabel cluster ids to enforce nesting within strata
-    survey.lonely.psu = "adjust") # Single unit centered on STATA
-  
-  options(survey.lonely.psu="adjust")
-  
-  assign('svyset_merge', svyset_merge, envir = .GlobalEnv)
-  
-  
-```
-
 
