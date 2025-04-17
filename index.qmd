@@ -154,7 +154,8 @@ Stata code:
 	replace ors=1 if h13==2
 
 * keep variables of interest
-	keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors nwgt 
+	keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors nwgt
+		save nigeria2013, replace
 
 * Call household dataset to obtain household size
 	use DHS_Nigeria2013_HH, clear
