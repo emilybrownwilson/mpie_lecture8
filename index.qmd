@@ -78,7 +78,7 @@ hh_2013 <-  read_dta("...DHS_Nigeria2013_HH.dta")
 kids_2013 <-  read_dta("...DHS_Nigeria2013_kids.dta")
 
 
-kids_2008_des <- kids_2008[,c("v005","h11","h13","h31","h31b","h32z","v024")]str(kids_2008_des)
+kids_2008_des <- kids_2008[,c("v005","h11","h13","h31","h31b","h32z","v024")]
 str(kids_2008_des)
 
 kids_2008 <- kids_2008 %>%
