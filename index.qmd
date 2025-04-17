@@ -1,11 +1,301 @@
 ---
-title: "CHECK FOLDER CHANGE"
+title: "MPIE Lecture 8: Analyzing change over time for coverage"
 ---
 
-This is a Quarto website.
+## Assessing Change in Intervention Coverage - Option 1
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+### Use the child recodes from Nigeria's 2008 and 2013 DHS in Stata or R
+R users may need to install/load these libraries
+```{r, eval=FALSE}
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("tidyverse")
+install.packages("survey")
+install.packages("haven")
+install.packages("labelled")
+install.packages("knitr")
+install.packages("multcomp")
 
-```{r}
-1 + 1
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(survey)
+library(haven)
+library(labelled)
+library(knitr)
+library(multcomp)
 ```
+
+### Step 1: Create coverage indicators (in both datasets)
+
+Stata code:
+```{r, eval=FALSE}
+numlabel, add
+
+des v005 h11 h13 h31 h31b h32z v024
+
+* Svy set the data
+	gen wgt = v005/1000000
+	sum wgt 
+	gen nwgt=wgt/r(mean)
+	sum nwgt
+	
+	svyset v001 [pw=nwgt], strata(v023) singleunit(centered)	
+	
+* Create diarrhea variable
+	tab h11
+	gen diarrhea=0 if h11==0
+	replace diarrhea=1 if h11==2
+	replace diarrhea=0 if h11==8|h11==9
+	svy: ta diarrhea
+
+* Create ORS treatment
+	tab h13
+	gen ors=0 if diarrhea==1
+	replace ors=1 if h13==2
+	svy: tab ors
+
+
+```
+
+R code:
+```{r, eval=FALSE}
+kids_2008_des <- kids_2008[,c("v005","h11","h13","h31","h31b","h32z","v024")]str(kids_2008_des)
+str(kids_2008_des)
+
+kids_2008 <- kids_2008 %>%
+  mutate(diarrhea = case_when(h11 == 0 ~ 0,
+                              h11 == 2 ~ 1,
+                              h11 == 8 | h11 == 9 ~ 0))
+kids_2008 <- kids_2008 %>%
+  mutate(ors = case_when(diarrhea == 1 & h13 == 2 ~ 1,
+                         diarrhea == 1 & !h13 == 2 ~ 0))
+
+kids_2008$wgt <- kids_2008$v005/1000000 # Correct weighting
+kids_2008$nwgt <- kids_2008$wgt/mean(kids_2008$wgt) # Create normalized weighting
+
+# Svy set the data
+  svy_2008 <- svydesign(
+  id = ~ v001, # Variable which represents the cluster
+  data = kids_2008, # The name of your data that you are using
+  weight = ~ nwgt, # Here we use normalized weighting
+  strata = ~ v023, # Variable which represents the stratum
+  nest = TRUE, # relabel cluster ids to enforce nesting within strata
+  survey.lonely.psu = "adjust") # Single unit centered on STATA
+  
+  options(survey.lonely.psu="adjust")
+  
+kable(prop.table(svytable(~ors, design = svyset_2008))*100)  
+```
+
+### Step 2a: Prepare 2008 and 2013 datasets to be combined
+
+Stata code:
+```{r, eval=FALSE}
+***2008 DHS
+* keep variables of interest
+	keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors ari nwgt aricare
+	save nigeria2008, replace
+
+* Call household dataset to obtain household size
+	use DHS_Nigeria2008_HH, clear
+	keep  hvidx  hv012 hv001 hv002 
+	rename hv001 v001
+	rename hvidx v003
+	rename hv002 v002
+	sort v001 v002 v003
+	save nigeria2008HH, replace
+
+* Merge both datasets
+	use nigeria2008, clear
+	sort v001 v002 v003
+	merge m:1 v001 v002 v003 using nigeria2008HH
+	keep if _merge==3
+	drop _merge
+
+	save nigeria2008anal, replace
+	
+***2013 Nigeria dataset
+	use DHS_Nigeria2013_kids.dta, clear // CHANGE DIRECTORY TO WHERE FILE IS STORED 
+
+* Svy set the data
+	gen wgt = v005/1000000
+	sum wgt 
+	gen nwgt=wgt/r(mean)
+	sum nwgt
+	
+	svyset v001 [pw=nwgt], strata(v023) singleunit(centered)	
+
+* Create diarrhea variable
+	gen diarrhea=0 if h11==0
+	replace diarrhea=1 if h11==2
+	replace diarrhea=0 if h11==8|h11==9
+
+* Create ORS treatment
+	gen ors=0 if diarrhea==1
+	replace ors=1 if h13==2
+
+* Create symptoms of ARI
+
+	gen ari=1 if h31==2 & h31b==1 & (h31c==1|h31c==3)
+	replace ari=0 if h31!=. & ari!=1
+
+* Create careseeking for symptoms of ARI from health facility
+	gen aricare=0 if ari==1
+	replace aricare=1 if ari==1 & h32z==1
+
+* Analysis of 2013 indicators
+	svy: prop ors
+	svy: prop ors, over(v024)
+
+	svy: prop aricare
+	svy: prop aricare, over(v024)
+
+
+* keep variables of interest
+	keep caseid midx v001 v002 v003 v005 v012 v022 v024 v025 v106 v190 v116 v023 diarrhea ors ari nwgt aricare
+	save nigeria2013, replace
+
+* Call household dataset to obtain household size
+	use DHS_Nigeria2013_HH, clear
+	keep  hvidx  hv012 hv001 hv002 
+	rename hv001 v001
+	rename hvidx v003
+	rename hv002 v002
+	sort v001 v002 v003
+	save nigeria2013HH, replace
+
+* Merge both datasets
+	use nigeria2013, clear
+	sort v001 v002 v003
+	merge m:1 v001 v002 v003 using nigeria2013HH
+	keep if _merge==3
+
+	drop _merge
+	gen survey=1
+	save nigeria2013anal, replace	
+```
+
+R code:
+```{r, eval=FALSE}
+# Select only the variables of interest
+kids_2008 <- kids_2008 %>%
+  select(caseid, midx, v001, v002, v003, v005, v012, v022, v024, v025, v106, v190, v116, v023, diarrhea, ors, ari, nwgt, aricare)
+
+# Get the household size from this dataset
+hh_2008 <- hh_2008 %>%
+  rename(v001 = hv001,
+         v002 = hv002,
+         v003 = hvidx)
+
+# Join household size data to the kids dataset
+kids_2008 <- kids_2008 %>%
+  left_join(hh_2008, by = c("v001", "v002", "v003"))
+
+
+########## Repeat indicator creation for 2013
+kids_2013 <- kids_2013 %>%
+  mutate(diarrhea = case_when(h11 == 0 ~ 0,
+                              h11 == 2 ~ 1,
+                              h11 == 8 | h11 == 9 ~ 0))
+kids_2013 <- kids_2013 %>%
+  mutate(ors = case_when(diarrhea == 1 & h13 == 2 ~ 1,
+                         diarrhea == 1 & !h13 == 2 ~ 0))
+
+kids_2013$wgt <- kids_2013$v005/1000000 # Correct weighting
+kids_2013$nwgt <- kids_2013$wgt/mean(kids_2013$wgt) # Create normalized weighting
+
+# Svy set the data
+  svy_2013 <- svydesign(
+  id = ~ v001, # Variable which represents the cluster
+  data = kids_2013, # The name of your data that you are using
+  weight = ~ nwgt, # Here we use normalized weighting
+  strata = ~ v023, # Variable which represents the stratum
+  nest = TRUE, # relabel cluster ids to enforce nesting within strata
+  survey.lonely.psu = "adjust") # Single unit centered on STATA
+  
+  options(survey.lonely.psu="adjust")
+  
+kable(prop.table(svytable(~ors, design = svyset_2013))*100)  
+
+kids_2013$wgt <- kids_2013$v005/1000000 # Correct weighting
+kids_2013$nwgt <- kids_2013$wgt/mean(kids_2013$wgt) # Create normalized weighting
+
+svy_2013 <- svydesign(
+    id = ~ v001, # Variable which represents the cluster
+    data = kids_2013, # The name of your data that you are using
+    weight = ~ nwgt, # Here we use normalized weighting
+    strata = ~ v023, # Variable which represents the stratum
+    nest = TRUE, # relabel cluster ids to enforce nesting within strata
+    survey.lonely.psu = "adjust") # Single unit centered on STATA
+  
+  options(survey.lonely.psu="adjust")
+  
+kable(prop.table(svytable(~ors, design = svyset_2013))*100)
+
+# Select only the variables of interest
+kids_2013 <- kids_2013 %>%
+  select(caseid, midx, v001, v002, v003, v005, v012, v022, v024, v025, v106, v190, v116, v023, diarrhea, ors, ari, nwgt, aricare)
+
+# Get the household size from this dataset
+hh_2013 <- hh_2013 %>%
+  rename(v001 = hv001,
+         v002 = hv002,
+         v003 = hvidx)
+
+# Join household size data to the kids dataset
+kids_2013 <- kids_2013 %>%
+  left_join(hh_2013, by = c("v001", "v002", "v003"))
+
+```
+
+### Step 2b: Append datasets (Stata) / rbind datasets (R)
+
+Stata code:
+```{r, eval=FALSE}
+* Append datasets
+	use nigeria2008anal, clear
+	gen survey=0
+	append using nigeria2013anal
+	save nigeria2008_2013, replace
+```
+
+R code:
+```{r, eval=FALSE}
+kids_2008$survey <- 0 # Indicates BASELINE
+kids_2013$survey <- 1 # Indicates ENDLINE
+
+kids_2008$survey_label <- "DHS 2008" # Indicates BASELINE
+kids_2013$survey_label <- "DHS 2013" # Indicates ENDLINE
+
+val_labels(kids_2008) <- NULL # Labels need to removed from the dataset for row binding to happen or else ERROR
+val_labels(kids_2013) <- NULL
+merged <- rbind(kids_2008, kids_2013) # Merge the two datasets together
+```
+
+
+### Step 3: set svy for pooled dataset
+
+Stata code:
+```{r, eval=FALSE}
+use nigeria2008_2013, clear
+egen stratum = group(v023 survey)
+svyset v001 [pw=nwgt], strata(stratum) singleunit(centered)
+svy: prop ors, over(survey)
+svy: prop ors, over(survey) coeflegend
+```
+
+R code:
+```{r, eval=FALSE}
+kable(svyby(~I(ors == 0), ~survey_label, design = svyset_merge, svyciprop, vartype="ci", method = "logit"))
+kable(svyby(~I(ors == 1), ~survey_label, design = svyset_merge, svyciprop, vartype="ci", method = "logit"))
+
+ors_merged <- svyby(~ors, ~survey_label, svyset_merge, svyciprop, na.rm = TRUE, vartype = "se", method = "logit")
+ors_merged
+100*confint(ors_merged)
+
+ors_diff <- svycontrast(ors_merged, quote(`DHS 2013` - `DHS 2008`)) # Standard error is needed to calculate the difference
+ors_diff*100
+confint(ors_diff)*100 # SE and CI are slightly different to STATA output
+```
+
