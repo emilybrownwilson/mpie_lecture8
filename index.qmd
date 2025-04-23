@@ -293,14 +293,15 @@ merged <- merged %>%
 merged$id <- paste0(as.character(merged$survey),"_",as.character(merged$v001),"_",as.character(merged$v002),"_",as.character(merged$v003),"_",as.character(merged$midx)) # PSU issue with cluster, so use this for id
 
   svyset_merge <- svydesign(
-    # id = ~ v001, # Variable which represents the cluster
-    id = ~ id, # Variable which represents the unique id
+    id = ~ v001, # Variable which represents the cluster
     data = merged, # The name of your data that you are using
     weight = ~ nwgt, # Here we use normalized weighting
     strata = ~ stratum, # Variable which represents the stratum
     nest = TRUE, # relabel cluster ids to enforce nesting within strata
     survey.lonely.psu = "adjust") # Single unit centered on STATA
 
+options(survey.lonely.psu="adjust")
+  
 kable(svyby(~I(ors == 0), ~survey_label, design = svyset_merge, svyciprop, vartype="ci", method = "logit"))
 kable(svyby(~I(ors == 1), ~survey_label, design = svyset_merge, svyciprop, vartype="ci", method = "logit"))
 
